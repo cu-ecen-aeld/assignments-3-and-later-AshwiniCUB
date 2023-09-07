@@ -38,5 +38,5 @@ fi
 
 # Print a success message
 echo "Successfully wrote '$writestr' to '$writefile'"
-
+ 
 exit 0
