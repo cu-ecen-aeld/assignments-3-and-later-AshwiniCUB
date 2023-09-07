@@ -10,12 +10,12 @@ writefile="$1"
 writestr="$2"
 
 # Check if the script got exactly 2 arguments or not
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 2 ] then
     echo "Correct arguments are passed"
 else
     echo "ERROR: Invalid number of arguments"
     exit 1
-fi 
+fi
 
 # Check if writefile or writestr is empty or not
 if [ -z "$writefile" ] || [ -z "$writestr" ]; then
@@ -25,15 +25,18 @@ fi
 
 # Create the directory path if it doesn't exist
 writefile_dir=$(dirname "$writefile")
-if [ ! -d "$writefile_dir" ]; then
+if [ -d "$writefile_dir" ] then
+    cd "$writefile_dir"
+else
     mkdir -p "$writefile_dir"
+    cd "$writefile_dir"
 fi
 
 # Attempt to write the content to the file
 echo "$writestr" > "$writefile"
 
 # Check if the write operation was successful
-if [ $? -ne 0 ]; then
+if ! [[ -f "${writefile}" ]]; then
     echo "Error: Could not write to '$writefile'"
     exit 1
 fi
