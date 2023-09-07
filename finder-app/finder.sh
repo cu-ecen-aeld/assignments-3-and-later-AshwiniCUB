@@ -10,7 +10,9 @@ filesdir="$1"
 searchstr="$2"
 
 # Check if the script got exactly 2 arguments or not
-if [ "$#" -ne 2 ] then
+if [ "$#" -eq 2 ]; then
+    echo "Correct arguments are passed"
+else
     echo "ERROR: Invalid number of arguments"
     exit 1
 fi

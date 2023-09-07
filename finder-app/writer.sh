@@ -9,8 +9,10 @@ writefile="$1"
 # text string that need to write into the file
 writestr="$2"
 
-# Check if the script received exactly 2 arguments
-if [ "$#" -ne 2 ] then
+# Check if the script got exactly 2 arguments or not
+if [ "$#" -eq 2 ]; then
+    echo "Correct arguments are passed"
+else
     echo "ERROR: Invalid number of arguments"
     exit 1
 fi
