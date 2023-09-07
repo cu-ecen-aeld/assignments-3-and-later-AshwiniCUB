@@ -17,7 +17,7 @@ fi
 
 # Check if the specified directory exists or not
 if [ ! -d "$filesdir" ]; then
-    echo "Error: '$filesdir' is not a valid directory"
+    echo "ERROR: '$filesdir' is not a valid directory"
     exit 1
 fi
 
