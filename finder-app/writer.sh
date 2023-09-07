@@ -17,12 +17,6 @@ else
     exit 1
 fi
 
-# Check if writefile or writestr is empty or not
-if [ -z "$writefile" ] || [ -z "$writestr" ]; then
-    echo "Error: Both file path and text to write must be specified"
-    exit 1
-fi
-
 # Create the directory path if it doesn't exist
 writefile_dir=$(dirname "$writefile")
 if [ -d "$writefile_dir" ] then
