@@ -10,7 +10,7 @@ writefile="$1"
 writestr="$2"
 
 # Check if the script received exactly 2 arguments
-if [ $# -ne 2 ]; then
+if [ "$#"" -ne 2 ]; then
     echo "ERROR: Invalid number of arguments"
     exit 1
 fi
@@ -38,5 +38,5 @@ fi
 
 # Print a success message
 echo "Successfully wrote '$writestr' to '$writefile'"
- 
+
 exit 0
