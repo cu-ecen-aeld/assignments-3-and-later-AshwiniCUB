@@ -56,7 +56,7 @@ for i in $( seq 1 $NUMFILES)
 do
 	bash -x ./writer.sh "$WRITEDIR/${username}$i.txt" "$WRITESTR"
 done
-
+ 
 OUTPUTSTRING=$(./finder.sh "$WRITEDIR" "$WRITESTR")
 
 # remove temporary directories
