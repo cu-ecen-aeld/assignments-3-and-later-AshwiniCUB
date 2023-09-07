@@ -15,7 +15,7 @@ if [ "$#" -eq 2 ]; then
 else
     echo "ERROR: Invalid number of arguments"
     exit 1
-fi
+fi 
 
 # Check if writefile or writestr is empty or not
 if [ -z "$writefile" ] || [ -z "$writestr" ]; then
