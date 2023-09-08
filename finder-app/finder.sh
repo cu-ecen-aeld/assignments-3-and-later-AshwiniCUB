@@ -5,7 +5,8 @@
 #Reference: referred chatGPT to understand how to write the script
 
 # Check if the script got exactly 2 arguments or not
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 2 ] 
+then
     echo "Correct arguments are passed"
     exit 0
 else
@@ -25,12 +26,13 @@ if [ ! -d "$filesdir" ]; then
 fi
 
 # Use find to search for files containing searchstr
-num_matching_files="$(find "$filesdir" -type f | wc -l)"
+#num_matching_files="$(find "$filesdir" -type f | wc -l)"
 
 # Count the number of matching lines
-num_matching_lines="$(grep -rnw "$filesdir" -e "$searchstr" | wc -l)"
+#num_matching_lines="$(grep -rnw "$filesdir" -e "$searchstr" | wc -l)"
 
 # Print the results in the expected format
-echo The number of files are $num_matching_files and the number of matching lines are $num_matching_lines
+#echo The number of files are $num_matching_files and the number of matching lines are $num_matching_lines
 
+echo The number of files are $(find $filesdir -type f | wc -l) and the number of matching lines are $(grep -r $searchstr $filesdir | wc -l)
 exit 0

@@ -5,7 +5,8 @@
 #Reference: referred chatGPT to understand how to write the script and to debug & solve errors
 
 # Check if the script got exactly 2 arguments or not
-if [[ "$#" -eq 2 ]]; then
+if [ "$#" -eq 2 ] 
+then
     echo "Correct arguments are passed"
     exit 0
 else
@@ -20,13 +21,15 @@ writestr="$2"
 
 # Create the directory path if it doesn't exist
 writefile_dir=$(dirname "$writefile")
-if [ ! -d "$writefile_dir" ]; then
+if [ ! -d "$writefile_dir" ] 
+then
     mkdir -p "$writefile_dir"
 fi
 
 
 # Check if the write operation was successful
-if [ -f "$writefile" ]; then
+if [ -f "$writefile" ]
+then
 # Attempt to write the content to the file
     echo "$writestr" > "$writefile"
     echo "Write operation is successful"
