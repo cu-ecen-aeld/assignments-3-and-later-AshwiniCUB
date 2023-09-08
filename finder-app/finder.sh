@@ -31,6 +31,6 @@ num_matching_files="$(find "$filesdir" -type f | wc -l)"
 num_matching_lines="$(grep -rnw "$filesdir" -e "$searchstr" | wc -l)"
 
 # Print the results in the expected format
-echo "The number of files are $num_matching_files and the number of matching lines are $num_matching_lines"
+echo The number of files are $num_matching_files and the number of matching lines are $num_matching_lines
 
 exit 0
