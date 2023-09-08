@@ -25,12 +25,14 @@ fi
 
 
 # Check if the write operation was successful
-if [ -f $writefile ] then
+if [ -f "$writefile" ]; then
 # Attempt to write the content to the file
     echo "$writestr" > "$writefile"
     echo "Write operation is successful"
+    exit 0
 else
-    echo "Error: Could not write to '$writefile'"
-    exit 1
+    echo "File does not exit so create new file"
+    touch "$writefile"
+    echo "$writestr" > "$writefile"
 fi
 
