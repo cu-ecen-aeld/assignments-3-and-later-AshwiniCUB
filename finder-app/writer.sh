@@ -36,3 +36,4 @@ else
     echo "$writestr" > "$writefile"
 fi
 
+exit 0
