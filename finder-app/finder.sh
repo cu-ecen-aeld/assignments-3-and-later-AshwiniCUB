@@ -25,7 +25,7 @@ if [ ! -d "$filesdir" ]; then
 fi
 
 # Use find to search for files containing searchstr
-matching_files="$(find "$filesdir" -type f | wc -l)"
+num_matching_files="$(find "$filesdir" -type f | wc -l)"
 
 # Count the number of matching lines
 num_matching_lines="$(grep -rnw "$filesdir" -e "$searchstr" | wc -l)"
