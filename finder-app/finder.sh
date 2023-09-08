@@ -5,11 +5,9 @@
 #Reference: referred chatGPT to understand how to write the script
 
 # Check if the script got exactly 2 arguments or not
-if [[ "$#" -eq 2 ]]; then
-    echo Correct arguments are passed
-    exit 0
-else
-    echo Invalid number of arguments
+if [ $# -ne 2 ]
+then
+    echo "Invalid number of arguments"
     exit 1
 fi
 
@@ -34,5 +32,5 @@ searchstr="$2"
 # Print the results in the expected format
 #echo The number of files are $num_matching_files and the number of matching lines are $num_matching_lines
 
-echo The number of files are $(find "$filesdir" -type f | wc -l) and the number of matching lines are $(grep -rnw "$filesdir" -e "$searchstr" | wc -l)
+echo The number of files are $(grep -r -l "$searchstr" "$filesdir" | wc -l) and the number of matching lines are $(grep -r "$searchstr" "$filesdir" | wc -l)
 exit 0
