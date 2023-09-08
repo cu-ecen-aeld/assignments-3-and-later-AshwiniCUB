@@ -24,8 +24,13 @@ if [ ! -d "$filesdir" ]; then
     exit 1
 fi
 
-# Count the number of matching lines in the directory and its subdirectories
-matching_lines_count=$(grep -rnw "$filesdir" -e "$searchstr" | wc -l)
+# Use find to search for files containing searchstr
+matching_files="$(find "$filesdir" -type f | wc -l)"
 
-# Print the final results
-echo "The number of files are $(find "$filesdir" -type f | wc -l) and the number of matching lines are $matching_lines_count"
+# Count the number of matching lines
+num_matching_lines="$(grep -rnw "$filesdir" -e "$searchstr" | wc -l)"
+
+# Print the results in the expected format
+echo "The number of files are $num_matching_files and the number of matching lines are $num_matching_lines"
+
+exit 0
