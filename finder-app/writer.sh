@@ -17,7 +17,7 @@ writefile=$1
 writestr=$2
 
 # Check if the write operation was successful
-if [ -z "$writestr" ]
+if [ -z "$writefile" ] || [ -z "$writestr" ]
 then
     echo "Write file path or string is not specified"
     exit 1
