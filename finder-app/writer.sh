@@ -19,7 +19,7 @@ writestr="$2"
 
 # Create the directory path if it doesn't exist
 writefile_dir=$(dirname "$writefile")
-if [ ! -d "$writefile_dir" ] then
+if [ ! -d "$writefile_dir" ]; then
     mkdir -p "$writefile_dir"
 fi
 
