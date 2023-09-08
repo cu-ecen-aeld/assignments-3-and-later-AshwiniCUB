@@ -18,7 +18,7 @@ then
 fi
 
 # Check if the specified directory exists or not
-if [ ! -d "$1" ]; then
+if [ ! -d "$filesdir" ]; then
     echo Invalid directory
     exit 1
 fi
