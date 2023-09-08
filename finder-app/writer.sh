@@ -19,11 +19,8 @@ writestr="$2"
 
 # Create the directory path if it doesn't exist
 writefile_dir=$(dirname "$writefile")
-if [ -d "$writefile_dir" ] then
-    cd "$writefile_dir"
-else
-    mkdir "$writefile_dir"
-    cd "$writefile_dir"
+if [ ! -d "$writefile_dir" ] then
+    mkdir -p "$writefile_dir"
 fi
 
 
