@@ -18,8 +18,22 @@ fi
 
 # Create the directory path if it doesn't exist
 writefile_dir=$(dirname "$writefile")
+if [ ! -d "$writefile_dir" ]; then
+    mkdir -p "$writefile_dir"
+fi
 
-mkdir -p "$writefile_dir" && touch "$writefile" 
-echo $writestr >> $writefile   
+# Check if the write operation was successful
+if [ -f "$writefile" ]
+then
+# Attempt to write the content to the file
+    echo "$writestr" > "$writefile"
+    echo "Write operation is successful"
+    exit 0
+else
+    echo "File does not exit so create new file"
+    touch "$writefile"
+    echo "$writestr" > "$writefile"
+    exit 0
+fi
 
 exit 0
