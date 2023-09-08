@@ -42,5 +42,5 @@ else
     echo "$writestr" > "$writefile"
     exit 0
 fi
-
+ 
 exit 0
