@@ -5,12 +5,17 @@
 #Reference: referred chatGPT to understand how to write the script
 
 # Check if the script got exactly 2 arguments or not
-if [ "$#" -eq 2 ] 
-then
-    echo "Correct arguments are passed"
+if [[ "$#" -eq 2 ]]; then
+    echo Correct arguments are passed
     exit 0
 else
-    echo "ERROR: Invalid number of arguments"
+    echo Invalid number of arguments
+    exit 1
+fi
+
+# Check if the specified directory exists or not
+if [ ! -d "$1" ]; then
+    echo Invalid directory
     exit 1
 fi
 
@@ -19,11 +24,6 @@ filesdir="$1"
 # text string that need to search in files
 searchstr="$2"
 
-# Check if the specified directory exists or not
-if [ ! -d "$filesdir" ]; then
-    echo "ERROR: '$filesdir' is not a valid directory"
-    exit 1
-fi
 
 # Use find to search for files containing searchstr
 #num_matching_files="$(find "$filesdir" -type f | wc -l)"
@@ -34,5 +34,5 @@ fi
 # Print the results in the expected format
 #echo The number of files are $num_matching_files and the number of matching lines are $num_matching_lines
 
-echo The number of files are $(find $filesdir -type f | wc -l) and the number of matching lines are $(grep -r $searchstr $filesdir | wc -l)
+echo The number of files are $(find "$filesdir" -type f | wc -l) and the number of matching lines are $(grep -rnw "$filesdir" -e "$searchstr" | wc -l)
 exit 0
