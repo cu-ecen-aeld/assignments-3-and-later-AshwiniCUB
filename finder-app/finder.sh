@@ -7,6 +7,7 @@
 # Check if the script got exactly 2 arguments or not
 if [ "$#" -eq 2 ]; then
     echo "Correct arguments are passed"
+    exit 0
 else
     echo "ERROR: Invalid number of arguments"
     exit 1
