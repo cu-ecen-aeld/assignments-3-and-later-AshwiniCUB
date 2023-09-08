@@ -4,6 +4,12 @@
 #Date  : 08/05/2023
 #Reference: referred chatGPT to understand how to write the script
 
+
+# path to a directory on the filesystem
+filesdir=$1   
+# text string that need to search in files
+searchstr=$2
+
 # Check if the script got exactly 2 arguments or not
 if [ $# -ne 2 ]
 then
@@ -16,11 +22,6 @@ if [ ! -d "$1" ]; then
     echo Invalid directory
     exit 1
 fi
-
-# path to a directory on the filesystem
-filesdir="$1"   
-# text string that need to search in files
-searchstr="$2"
 
 
 # Use find to search for files containing searchstr
