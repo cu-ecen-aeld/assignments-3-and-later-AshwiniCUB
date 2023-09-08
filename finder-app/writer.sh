@@ -5,7 +5,7 @@
 #Reference: referred chatGPT to understand how to write the script and to debug & solve errors
 
 # Check if the script got exactly 2 arguments or not
-if [ "$#" -eq 2 ]; then
+if [[ "$#" -eq 2 ]]; then
     echo "Correct arguments are passed"
     exit 0
 else
@@ -35,6 +35,7 @@ else
     echo "File does not exit so create new file"
     touch "$writefile"
     echo "$writestr" > "$writefile"
+    exit 0
 fi
 
 exit 0
