@@ -23,5 +23,5 @@ void test_validate_my_username()
     char* string1 = malloc_username_from_conf_file();
     const char* string2 = my_username();
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE(string1, string2, "Issue is Fixed!");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE(string2, string1, "Issue is Fixed!");
 }
