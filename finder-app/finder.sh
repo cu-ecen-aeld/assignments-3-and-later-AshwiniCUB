@@ -3,7 +3,7 @@
 #Author: Ashwini Patil
 #Date  : 08/05/2023
 #Reference: referred chatGPT to understand how to write the script
-
+ 
 
 # path to a directory on the filesystem
 filesdir=$1   
