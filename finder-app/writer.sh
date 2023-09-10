@@ -3,7 +3,7 @@
 #Author: Ashwini Patil
 #Date  : 08/05/2023
 #Reference: referred chatGPT to understand how to write the script and to debug & solve errors
-
+ 
 # Check if the script got exactly 2 arguments or not
 if [ $# -ne 2 ]
 then
