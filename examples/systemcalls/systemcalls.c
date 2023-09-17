@@ -1,4 +1,12 @@
+//References- https://stackoverflow.com/questions/19099663/how-to-correctly-use-fork-exec-wait
+//            https://vitux.com/fork-exec-wait-and-exit-system-call-explained-in-linux/
+//            referred chatgpt to understand how fork(), execv(), wait_pid() works
+
+
 #include "systemcalls.h"
+#include <syslog.h>  
+#include <sys/types.h>
+#include <fcntl.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -16,8 +24,13 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
+    int flag = system(cmd);
 
-    return true;
+    if(flag == 0){
+        return true;
+    }
+    
+    return false;
 }
 
 /**
@@ -47,7 +60,7 @@ bool do_exec(int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
+    //command[count] = command[count];
 
 /*
  * TODO:
@@ -58,6 +71,45 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+    pid_t fork_status;
+    int exec_status = 0;
+    int wait_status = 0;
+    int status;
+
+    fork_status = fork();
+    
+    if(fork_status == -1){
+        syslog(LOG_ERR, "Fork failed");
+        return false;
+    }
+
+    else if(fork_status == 0){
+        syslog(LOG_INFO, "Child process PID: %d", getpid());
+        exec_status = execv(command[0], command);
+        if(exec_status == -1){
+            syslog(LOG_ERR, "execv failed");
+            exit(-1);
+        }
+    }
+
+    wait_status = waitpid(fork_status,&status,0);
+
+    if(wait_status == -1){
+        syslog(LOG_ERR, "Error occured while waiting for child process");
+        return false;
+    } 
+    else if(WIFEXITED(status)){
+        int exit_status = 0;
+        exit_status=WEXITSTATUS(status);
+        if(exit_status != 0){
+            syslog(LOG_ERR, "Child process is not terminated");
+            return false;
+        }
+        else{
+            syslog(LOG_INFO, "Child process terminated");
+            return true;
+        }
+    }
 
     va_end(args);
 
@@ -82,7 +134,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
+    //command[count] = command[count];
 
 
 /*
@@ -92,6 +144,59 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+
+    pid_t fork_status;
+    int exec_status = 0;
+    int wait_status = 0;
+    int status;
+
+    int fd_status = open(outputfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if(fd_status == -1){
+        syslog(LOG_ERR, "Failed to open the output file");
+        return false;
+    }
+
+    if (dup2(fd_status, 1) == -1){
+        syslog(LOG_ERR,"duplication failed");
+        close(fd_status);
+        return false;
+    }
+
+    fork_status = fork();
+    
+    if(fork_status == -1){
+        syslog(LOG_ERR, "Fork failed");
+        return false;
+    }
+
+    else if(fork_status == 0){
+        syslog(LOG_INFO, "Child process PID: %d", getpid());
+        exec_status = execv(command[0], command);
+        if(exec_status == -1){
+            syslog(LOG_ERR, "execv failed");
+            exit(-1);
+        }
+    }
+
+    wait_status = waitpid(fork_status,&status,0);
+
+    if(wait_status == -1){
+        syslog(LOG_ERR, "Error occured while waiting for child process");
+        return false;
+    } 
+    else if(WIFEXITED(status)){
+        int exit_status = 0;
+        exit_status=WEXITSTATUS(status);
+        if(exit_status != 0){
+            syslog(LOG_ERR, "Child process is not terminated");
+            return false;
+        }
+        else{
+            syslog(LOG_INFO, "Child process terminated");
+            return true;
+        }
+    }    
 
     va_end(args);
 
