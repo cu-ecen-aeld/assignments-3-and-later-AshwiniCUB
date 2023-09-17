@@ -195,7 +195,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
             return false;
         }
     }    
-
+ 
     va_end(args);
 
     return true;
