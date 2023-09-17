@@ -88,7 +88,7 @@ bool do_exec(int count, ...)
         exec_status = execv(command[0], command);
         if(exec_status == -1){
             syslog(LOG_ERR, "execv failed");
-            exit(-1);
+            return false;
         }
     }
 
@@ -175,7 +175,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
         exec_status = execv(command[0], command);
         if(exec_status == -1){
             syslog(LOG_ERR, "execv failed");
-            exit(-1);
+            return false;
         }
     }
 
