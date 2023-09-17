@@ -4,9 +4,15 @@
 
 
 #include "systemcalls.h"
-#include <syslog.h>  
-#include <sys/types.h>
+#include <syslog.h> 
+#include <stdlib.h> 
+#include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+
+
 
 /**
  * @param cmd the command to execute with system()
