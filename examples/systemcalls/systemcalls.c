@@ -156,20 +156,20 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 
     if(fd_status == -1){
         syslog(LOG_ERR, "Failed to open the output file");
-        return false;
+        exit(EXIT_FAILURE);
     }
 
     if (dup2(fd_status, 1) == -1){
         syslog(LOG_ERR,"duplication failed");
         close(fd_status);
-        return false;
+        exit(EXIT_FAILURE);
     }
 
     fork_status = fork();
     
     if(fork_status == -1){
         syslog(LOG_ERR, "Fork failed");
-        return false;
+        exit(EXIT_FAILURE);
     }
 
     else if(fork_status == 0){
@@ -177,7 +177,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
         exec_status = execv(command[0], command);
         if(exec_status == -1){
             syslog(LOG_ERR, "execv failed");
-            return false;
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -185,18 +185,14 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 
     if(wait_status == -1){
         syslog(LOG_ERR, "Error occured while waiting for child process");
-        return false;
+        exit(EXIT_FAILURE);
     } 
     else if(WIFEXITED(status)){
         int exit_status = 0;
         exit_status=WEXITSTATUS(status);
         if(exit_status != 0){
             syslog(LOG_ERR, "Child process is not terminated");
-            return false;
-        }
-        else{
-            syslog(LOG_INFO, "Child process terminated");
-            return true;
+            exit(EXIT_FAILURE);
         }
     }    
 
