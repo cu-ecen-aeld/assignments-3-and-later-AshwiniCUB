@@ -4,7 +4,7 @@
  
 set -e
 set -u
-
+ 
 OUTDIR=/tmp/aeld
 KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 KERNEL_VERSION=v5.1.10
