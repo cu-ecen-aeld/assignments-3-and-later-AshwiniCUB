@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #Description: finder.sh shell script
 #Author: Ashwini Patil
 #Date  : 08/05/2023
