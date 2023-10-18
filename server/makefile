@@ -1,15 +1,20 @@
-CC=$(CROSS_COMPILE)gcc
-CFLAGS=-Wall -Werror -g
+CC ?= $(CROSS_COMPILE)gcc
+CFLAGS ?= -g -Wall -Werror
+CROSS_COMPILE ?=
+TARGET ?= aesdsocket
+LDFLAGS ?= -lpthread -lrt
 
-all: aesdsocket
+default: $(TARGET)
+
+all: default
 
 aesdsocket: aesdsocket.o
-	$(CC) $^ -o $@
-
+	$(CC) $(CFLAGS) -o $(TARGET) aesdsocket.o $(LDFLAGS)
+    
 aesdsocket.o: aesdsocket.c
-	$(CC) -c $^ $(CFLAGS) -o $@ 
-
+	$(CC) $(CFLAGS) -c aesdsocket.c -o aesdsocket.o
+    
 clean:
-	rm -f *.o aesdsocket
+	rm -f $(TARGET) aesdsocket.o
 
-	
+
