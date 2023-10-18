@@ -206,7 +206,7 @@ void *manage_thread(void *thread_node){
     node->thread_complete = true;
     pthread_exit(node);
 
-    syslog(LOG_INFO, "Connection closed ");
+    syslog(LOG_INFO, "Connection closed");
     return node;
 }
 
