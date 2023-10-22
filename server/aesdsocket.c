@@ -49,6 +49,7 @@ pthread_mutex_t thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void signal_handler(int signo)
 {
+    printf("signal handler function entry\n");
 	if (signo == SIGINT || signo == SIGTERM)
 	{
         flag = true;
@@ -56,10 +57,12 @@ static void signal_handler(int signo)
         
         exit(0);
 	}	
+    printf("signal handler function exit\n");
 }
 
 static void exit_function(void)
 {
+    printf("exit function entry\n");
     if(unlink(FILE) == -1) {
         syslog(LOG_ERR, "Error removing data file: %m"); 
     }
@@ -70,10 +73,12 @@ static void exit_function(void)
     close(connection);
     closelog();
     remove(FILE);
+    printf("exit function exit\n");
 }
 
 static int function_daemon(void)
 {
+    printf("daemon function entry\n");
 	pid_t pid = fork();
 
 	if (pid < 0) 
@@ -105,10 +110,13 @@ static int function_daemon(void)
     close(STDERR_FILENO);
 
     return 0;
+    printf("daemon function exit\n");
 }
 
 static void *timer_function(void *thread_node){
+    printf("timer function entry\n");
     while(!flag){
+        printf("inside while of timer function\n");
         time_t current_time = time(NULL);
         char Buffer[200];
         struct tm * time_struct = localtime(&current_time);
@@ -149,11 +157,14 @@ static void *timer_function(void *thread_node){
         close(file);
         sleep(10);
     }
+    printf("timer function - before pthread exit\n");
     pthread_exit(NULL);
+    printf("timer function - after pthread exit\n");
 }
 
 void *manage_thread(void *thread_node){
 
+    printf("manage thread function entry\n");
     struct socket_data *node = (struct socket_data *)thread_node;
     char *Buffer = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
     ssize_t received_bytes;
@@ -207,12 +218,14 @@ void *manage_thread(void *thread_node){
     pthread_exit(node);
 
     syslog(LOG_INFO, "Connection closed");
+    printf("manage thread function exit\n");
     return node;
 }
 
 
 int main(int argc, char **argv)
 {
+    printf("int main function entry\n");
 	bool daemon_state = false;
     const int reuse = 1;
     socket_data_t *data_ptr = NULL;
@@ -342,8 +355,7 @@ int main(int argc, char **argv)
     exit_function();
     pthread_mutex_destroy(&thread_mutex);
     pthread_join(data_ptr->thread_id, NULL);
-
+    printf("int main function exit\n");
     return 0;
 }
-
 
