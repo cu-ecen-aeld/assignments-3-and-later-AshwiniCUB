@@ -1,3 +1,11 @@
+# Analysis of Faulty OOPS
+
+## Command used 
+    $ echo “hello_world” > /dev/faulty
+
+## Output
+<img src="faulty-oops" alt="faulty-oops" title="faulty-oops"> 
+
 # echo “hello_world” > /dev/faulty
 Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
 Mem abort info:
@@ -41,3 +49,15 @@ Call trace:
  el0t_64_sync+0x1a0/0x1a4
 Code: d2800001 d2800000 d503233f d50323bf (b900003f) 
 ---[ end trace 0bb939a9ef4d4ac2 ]---
+
+## Analysis
+
+1. Kernel OOPS: The message shows that null point dereference while executing the command. The kernel tried to access memory at the virtual address 0x00 and couldn't handle this invalid memory access.
+2. Mem Abort Info: The section provides additional information about the memory access fault in which ESR (Exception Syndrome Register) is set to 0x96000045 and EC (Exception Class) is 0x25, indicating a Data Abort (DABT) in the current Execution Level (EL).
+3. Function Call Stack: The log includes a call stack, which shows the sequence of function calls leading up to the error. faulty_write is the function from the "faulty" kernel module that was being executed when the error occurred. The program counter (pc) was at an offset of 0x14 within this function. vfs_write is another function (from the Virtual File System) that was called by the faulty_write function. The call stack indicates that the error occurred within the faulty_write function.
+4. Before Call trace, it gives information about the link register, stack pointer and other general purpose registers. At the end, call trace gives the function calls.
+5. In summary, the log captures a kernel Oops that happened when the echo command attempted to write to the /dev/faulty device, which is associated with the "faulty" kernel module.
+
+## Reference
+https://wiki.ubuntu.com/DebuggingKernelOops
+Referred ChatGPT to understand the logs
