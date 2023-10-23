@@ -8,15 +8,18 @@
 
 # echo “hello_world” > /dev/faulty
 Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+
 Mem abort info:
   ESR = 0x96000045
   EC = 0x25: DABT (current EL), IL = 32 bits
   SET = 0, FnV = 0
   EA = 0, S1PTW = 0
   FSC = 0x05: level 1 translation fault
+
 Data abort info:
   ISV = 0, ISS = 0x00000045
   CM = 0, WnR = 1
+
 user pgtable: 4k pages, 39-bit VAs, pgdp=00000000420fe000
 [0000000000000000] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
 Internal error: Oops: 96000045 [#1] SMP
@@ -37,6 +40,7 @@ x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
 x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
 x5 : 0000000000000001 x4 : ffffffc0006f7000 x3 : ffffffc008d23df0
 x2 : 0000000000000012 x1 : 0000000000000000 x0 : 0000000000000000
+
 Call trace:
  faulty_write+0x14/0x20 [faulty]
  ksys_write+0x68/0x100
@@ -60,4 +64,5 @@ Code: d2800001 d2800000 d503233f d50323bf (b900003f)
 
 ## Reference
 https://wiki.ubuntu.com/DebuggingKernelOops
+
 Referred ChatGPT to understand the logs
