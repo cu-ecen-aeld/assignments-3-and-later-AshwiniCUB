@@ -4,7 +4,7 @@
     $ echo “hello_world” > /dev/faulty
 
 ## Output
-<img src="faulty-oops" alt="faulty-oops" title="faulty-oops"> 
+<img src="faulty-oops.png" alt="faulty-oops" title="faulty-oops"> 
 
 # echo “hello_world” > /dev/faulty
 Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
