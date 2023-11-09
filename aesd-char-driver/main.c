@@ -327,7 +327,7 @@ int aesd_init_module(void)
     return result;
 
 }
-
+ 
 void aesd_cleanup_module(void)
 {
     dev_t devno = MKDEV(aesd_major, aesd_minor);
