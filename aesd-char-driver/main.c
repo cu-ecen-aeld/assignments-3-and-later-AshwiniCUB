@@ -24,6 +24,8 @@
 #include "aesdchar.h"
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+#include "aesdchar.h"
+#include "aesd_ioctl.h"
 
 int aesd_major =   0; // use dynamic major
 int aesd_minor =   0;
@@ -59,9 +61,17 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     size_t remaining_bytes = 0;
     ssize_t read_bytes = 0;
     struct aesd_buffer_entry *entry = NULL;
+    struct aesd_dev *dev = NULL;
 
     // Log the read request for debugging
     PDEBUG("read %zu bytes with offset %lld", count, *f_pos);
+
+    dev = filp->private_data;
+    if (0 != mutex_lock_interruptible(&dev->lock))
+    {
+        PDEBUG("error in acquiring lock for mutex_lock_interruptible");
+        return -ERESTARTSYS;
+    }
 
     // Find the buffer entry and offset for the current file position
     entry = aesd_circular_buffer_find_entry_offset_for_fpos(&aesd_device.buffer, *f_pos, &entry_offset);
@@ -84,6 +94,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
         }
     }
 
+    mutex_unlock(&dev->lock);
     return retval;
 }
 
@@ -148,12 +159,132 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     return retval ? retval : count;
 }
 
+loff_t aesd_llseek(struct file *filp, loff_t off, int whence)
+{
+    struct aesd_dev *dev = NULL;
+    uint8_t index = 0;
+    loff_t file_offset = 0;
+    loff_t total_size = 0;
+    struct aesd_buffer_entry *entry = NULL;
+    
+    dev = filp->private_data;
+	
+    // acquiring lock
+    if (0 != mutex_lock_interruptible(&dev->lock))
+    {
+        PDEBUG("ERROR: mutex_lock_interruptible acquiring lock");
+        return -ERESTARTSYS;
+    }
+
+    AESD_CIRCULAR_BUFFER_FOREACH(entry,&aesd_device.buffer,index)
+    {
+        total_size += entry->size;
+    }
+	
+    // releasing lock
+    mutex_unlock(&dev->lock);
+    file_offset = fixed_size_llseek(filp, off, whence, total_size);
+    return file_offset;
+}
+
+static long aesd_adjust_file_offset(struct file *filp, unsigned int write_cmd, unsigned int write_cmd_offset)
+{
+    long retval = 0;
+    struct aesd_dev *dev = filp->private_data;
+    uint8_t index = 0;
+
+    PDEBUG("aesd_adjust_file_offset()");
+
+    // Acquire lock
+    if (mutex_lock_interruptible(&dev->lock) != 0)
+    {
+        PDEBUG("mutex_lock_interruptible() acquiring lock error");
+        return -ERESTARTSYS;
+    }
+
+    PDEBUG("aesd_adjust_file_offset() start");
+
+    // Check if write_cmd exceeds max writes supported
+    if (write_cmd > AESDCHAR_MAX_WRITE_OPERATIONS_SUPPORTED)
+    {
+        PDEBUG("invalid");
+        retval = -EINVAL;
+    }
+
+    AESD_CIRCULAR_BUFFER_FOREACH(entry,&aesd_device.buffer,index){}
+    
+    // Check if write_cmd exceeds the number of entries present
+    else if (write_cmd > index)
+    {
+        PDEBUG("invalid");
+        retval = -EINVAL;
+    }
+    // Check if offset exceeds the size of the entry
+    else if (write_cmd_offset >= dev->buffer.entry[write_cmd].size)
+    {
+        PDEBUG("invalid");
+        retval = -EINVAL;
+    }
+    else
+    {
+        // Adjust the file offset position
+        filp->f_pos = write_cmd_offset;
+        int i;
+        for (i = 0; i < write_cmd; i++)
+        {
+            filp->f_pos += dev->buffer.entry[i].size;
+        }
+        PDEBUG("aesd_adjust_file_offset() completed");
+    }
+
+    // Release lock
+    mutex_unlock(&dev->lock);
+    return retval;
+}
+
+long aesd_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	long retval = 0;
+ 	struct aesd_seekto aesd_data;
+ 	
+	if (_IOC_TYPE(cmd) != AESD_IOC_MAGIC)
+	{
+		return -ENOTTY;
+	}
+	if (_IOC_NR(cmd) > AESDCHAR_IOC_MAXNR)
+	{
+		return -ENOTTY;
+	}
+
+ 	switch (cmd)
+ 	{
+		case AESDCHAR_IOCSEEKTO:
+			retval = copy_from_user(&aesd_data, (const void __user *)arg, sizeof(aesd_data));
+        		if (retval != 0)
+        		{
+            			retval = -EFAULT;
+        		}
+        		else
+        		{
+				        retval = aesd_adjust_file_offset(filp, aesd_data.write_cmd, aesd_data.write_cmd_offset);
+        		}
+        	break;
+
+ 	    	default:
+ 			retval = -ENOTTY;
+ 			break;
+ 	}
+ 	return retval;
+}
+
 struct file_operations aesd_fops = {
     .owner =    THIS_MODULE,
     .read =     aesd_read,
     .write =    aesd_write,
     .open =     aesd_open,
     .release =  aesd_release,
+    .llseek = aesd_llseek,
+    .unlocked_ioctl = aesd_ioctl
 };
 
 static int aesd_setup_cdev(struct aesd_dev *dev)
@@ -196,7 +327,7 @@ int aesd_init_module(void)
     return result;
 
 }
-
+ 
 void aesd_cleanup_module(void)
 {
     dev_t devno = MKDEV(aesd_major, aesd_minor);
@@ -218,4 +349,3 @@ void aesd_cleanup_module(void)
 
 module_init(aesd_init_module);
 module_exit(aesd_cleanup_module);
-

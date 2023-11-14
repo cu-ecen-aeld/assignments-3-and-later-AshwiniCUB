@@ -17,13 +17,15 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include "queue.h"
-
+#include "../aesd-char-driver/aesd_ioctl.h"
 
 #define FILE "/var/tmp/aesdsocketdata"
 #define PORT 9000
 #define MAX_BUFFER_SIZE (1024)
 #define MAXIMUM_CONNECTIONS   (10)
 
+#define SUCCESS      (0)
+#define FAILURE      (-1)
 
 int file_fd = 0;
 int socket_fd = 0;
@@ -74,6 +76,7 @@ static void exit_function(void)
     closelog();
     remove(FILE);
     printf("exit function exit\n");
+    exit(0);
 }
 
 static int function_daemon(void)
@@ -113,53 +116,101 @@ static int function_daemon(void)
     printf("daemon function exit\n");
 }
 
+
 static void *timer_function(void *thread_node){
-    printf("timer function entry\n");
-    while(!flag){
-        printf("inside while of timer function\n");
-        time_t current_time = time(NULL);
-        char Buffer[200];
-        struct tm * time_struct = localtime(&current_time);
+    socket_data_t *node = NULL;
+    int status = FAILURE;
+    struct timespec time_period;
+    time_t current_time;
+    int file_fd = -1;
+    struct tm *temp;
+    int written_bytes = 0;
+    char output[MAX_BUFFER_SIZE] = {'\0'};
+    
 
-        if (time_struct == NULL) {
-			perror("error in converting from time to localtime");
-			exit(EXIT_FAILURE);
-		}
-
-        int length = strftime(Buffer, sizeof(Buffer), "timestamp:%d.%b.%y - %k:%M:%S\n", time_struct);
-		if (length == 0) {
-			perror("Formating of timestamp failed");
-			exit(EXIT_FAILURE);
-		}
-
-        int file = open(FILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
-		if (file == -1) {
-			perror("File open failed"); 
-            syslog(LOG_ERR, "File open failed: %m"); 
-            exit(EXIT_FAILURE);
-		}
-
-        if (pthread_mutex_lock(&thread_mutex) != 0) {
-			exit(EXIT_FAILURE);
-		}
-
-        int write_status = write(file, Buffer, length);
-
-        if (pthread_mutex_unlock(&thread_mutex) != 0) {
-			exit(EXIT_FAILURE);
-		}
-
-        if (write_status == -1) {
-            syslog(LOG_ERR, "write operation failed");
-			exit(EXIT_FAILURE);
-		}
-
-        close(file);
-        sleep(10);
+    if (NULL == thread_node)
+    {
+        return NULL;
     }
-    printf("timer function - before pthread exit\n");
-    pthread_exit(NULL);
-    printf("timer function - after pthread exit\n");
+    node = (socket_data_t *)thread_node;
+    
+    while (!flag)
+    {
+        if (SUCCESS != clock_gettime(CLOCK_MONOTONIC, &time_period))
+        {
+            syslog(LOG_ERR, "clock_gettime: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;
+        
+        }
+        time_period.tv_sec += 10;
+        
+        if (SUCCESS != clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &time_period, NULL))
+        {
+            syslog(LOG_ERR, "clock_nanosleep: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;       
+        }
+        current_time = time(NULL);
+        if (FAILURE == current_time)
+        {
+            syslog(LOG_ERR, "time: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;      
+        }       
+        temp = localtime(&current_time);
+        if (NULL == temp)
+        {
+            syslog(LOG_ERR, "localtime: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;      
+        }
+        
+        if (0 == strftime(output, sizeof(output), "timestamp: %Y %B %d, %H:%M:%S\n", temp))
+        {
+            syslog(LOG_ERR, "strftime: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;        
+        }
+        
+        file_fd = open(FILE, O_CREAT|O_RDWR|O_APPEND, 
+                       S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IROTH);
+        if (FAILURE == file_fd)
+        {
+            syslog(LOG_ERR, "Error opening %s file: %s", FILE, strerror(errno));
+            status = FAILURE;
+            goto exit;
+        }       
+        if (SUCCESS != pthread_mutex_lock(node->thread_mutex))
+        {
+            syslog(LOG_PERROR, "pthread_mutex_lock: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;
+        }
+        
+        written_bytes = write(file_fd, output, strlen(output));
+        if (written_bytes != strlen(output))
+        {
+            syslog(LOG_ERR, "Error writing %s to %s file: %s", output, FILE,
+                       strerror(errno));
+            status = FAILURE;
+            pthread_mutex_unlock(node->thread_mutex);
+            goto exit;
+        }
+        if (SUCCESS != pthread_mutex_unlock(node->thread_mutex))
+        {
+            syslog(LOG_PERROR, "pthread_mutex_unlock: %s", strerror(errno));
+            status = FAILURE;
+            goto exit;
+        }
+        status = SUCCESS;
+        close(file_fd);
+    }
+
+exit:
+     (status == FAILURE) ? (node->thread_complete = false) : 
+                           (node->thread_complete = true);
+     return thread_node;
 }
 
 void *manage_thread(void *thread_node){
